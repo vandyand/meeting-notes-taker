@@ -1,0 +1,38 @@
+{:tasks
+  {test
+  {:doc "Run fast unit tests."
+   :task (shell "clojure" "-M:dev:test" "-m" "cognitect.test-runner"
+                "-d" "components/capture-agent/test")}
+
+  win:deps
+  {:doc "Install Windows Python deps for capture, screenshots, and OCR helpers."
+   :task (shell "powershell.exe" "-NoProfile" "-Command"
+                "python -m pip install --user soundcard numpy pillow")}
+
+  win:list
+  {:doc "List Windows audio capture devices via the Python helper."
+   :task (shell "powershell.exe" "-NoProfile" "-Command"
+                "python scripts/windows_capture.py list-devices")}
+
+  win:record
+  {:doc "Record all Windows speaker loopbacks + working mics. Usage: bb win:record [seconds] [out-dir]"
+   :task (let [seconds (or (first *command-line-args*) "10")
+               out-dir (or (second *command-line-args*) "recordings/spike")]
+           (shell "powershell.exe" "-NoProfile" "-Command"
+                  (str "python scripts/windows_capture.py record --seconds "
+                       seconds " --out-dir '" out-dir "' --all-devices")))}
+
+  win:ui
+  {:doc "Launch the Windows desktop capture UI."
+   :task (shell "powershell.exe" "-NoProfile" "-Command"
+                "python scripts/windows_capture_ui.py")}
+
+  transcript:clean
+  {:doc "Clean Whisper JSON transcripts for a recording session. Usage: bb transcript:clean <session-dir>"
+   :task (let [session-dir (or (first *command-line-args*)
+                               "recordings/desktop/20260710-135503")]
+           (shell "python" "scripts/clean_transcript.py" session-dir))}
+
+  process:latest
+  {:doc "Process the latest desktop recording with Whisper, cleanup, and OpenRouter notes."
+   :task (shell "python" "scripts/process_latest.py" "--latest")}}}

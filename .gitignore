@@ -1,0 +1,14 @@
+.cpcache/
+.clj-kondo/.cache/
+.win-venv/
+__pycache__/
+*.pyc
+recordings/
+*.wav
+*.flac
+*.mp3
+
+# Generated test/visual outputs (may contain real meeting thumbnails)
+.artifacts/
+tests/artifacts/
+*.log
